@@ -24,7 +24,8 @@
     margin-top: 30px;
 }
 
-.loginsignup-fields input{
+.loginsignup-fields input,
+.loginsignup-fields select{
     height: 72px;
     width: 100%;
     padding-left: 20px;
@@ -56,6 +57,7 @@
 .loginsignup-login span{
     color: #ff4141;
     font-weight: 600;
+    cursor: pointer;
 }
 
 .loginsignup-agree{
