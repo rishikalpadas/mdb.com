@@ -1,60 +1,125 @@
-.hero{
+.hero {
     height: 100vh;
-    background: linear-gradient(180deg, #fde1ff,#e1ffea22 60%);
+    width: 100%;
+    /* background: linear-gradient(180deg, #fde1ff, #e1ffea22 60%); */
     display: flex;
-}
-
-.hero-left{
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .slider-container {
+    width: 300%;
+    height: 100%;
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .hero-slide {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    visibility: hidden;
+  }
+  
+  .hero-slide.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .hero-left {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 20px;
     padding-left: 180px;
-    line-height: 1.1;
-}
-
-.hero-left h2{
+    gap: 20px;
+  }
+  
+  .hero-left h2 {
     color: #090909;
     font-size: 26px;
     font-weight: 600;
-}
-
-.hero-left p{
+  }
+  
+  .hero-left p {
     color: #171717;
     font-size: 100px;
     font-weight: 700;
-}
-
-.hero-hand-icon{
+    line-height: 1;
+  }
+  
+  .hero-hand-icon {
     display: flex;
     align-items: center;
     gap: 20px;
-}
-
-.hero-hand-icon img{
-    width: 105px;
-}
-
-.hero-latest-btn{
+  }
+  
+  .hero-hand-icon img {
+    width: 80px;
+  }
+  
+  .hero-btn {
     display: flex;
-    justify-content: center;
     align-items: center;
     gap: 15px;
-    width: 310px;
-    height: 70px;
+    width: fit-content;
+    padding: 15px 30px;
     border-radius: 75px;
     margin-top: 30px;
     background: #ff4141;
     color: white;
     font-size: 22px;
     font-weight: 500;
-}
-
-.hero-right{
-    /* flex: 1; */
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .hero-btn:hover {
+    background: #e53935;
+    transform: scale(1.05);
+  }
+  
+  .hero-btn img {
+    width: 20px;
+  }
+  
+  .hero-right {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
+  }
+  
+  .hero-right img {
+    width: 80%;
+    height: auto;
+    object-fit: contain;
+  }
+  
+  .slider-indicators {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+  }
+  
+  .indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .indicator.active {
+    background-color: #ff4141;
+    transform: scale(1.2);
+  }

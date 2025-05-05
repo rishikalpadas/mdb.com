@@ -1,44 +1,75 @@
-import React from 'react'
-import './Footer.css'
-import footer_logo from '../Assets/logo_big.png'
-import instagram_icon from '../Assets/instagram_icon.png'
-import pintester_icon from '../Assets/pintester_icon.png'
-import whatsapp_icon from '../Assets/whatsapp_icon.png'
-
-
+import React from 'react';
+import './Footer.css';
+import footer_logo from '../Assets/logo_big.png';
+import instagram_icon from '../Assets/instagram_icon.png';
+import pintester_icon from '../Assets/pintester_icon.png';
+import whatsapp_icon from '../Assets/whatsapp_icon.png';
 
 const Footer = () => {
   return (
     <div className='footer'>
-      <div className="footer-logo">
-        <img src={footer_logo} alt="" />
-        <p>MY DESIGN BAZAAR</p>
+      <div className="footer-top">
+        <div className="footer-contact">
+          <p><strong>Email:</strong> info@mydesignbazaar.com</p>
+          <p><strong>Toll Free:</strong> 1800-11-9999</p>
+          <p><strong>WhatsApp:</strong> +91 99999 99999</p>
+        </div>
+
+        <div className="footer-section">
+          <h4>Company Info</h4>
+          <ul>
+            <li>Home</li>
+            <li>About Us</li>
+            <li>Testimonials</li>
+            <li>Our Offices</li>
+          </ul>
+        </div>
+
+        <div className="footer-section">
+          <h4>Learn More</h4>
+          <ul>
+            <li>Pricing</li>
+            <li>Licensing</li>
+            <li>Terms of Use</li>
+            <li>Privacy Policy</li>
+          </ul>
+        </div>
+
+        <div className="footer-section">
+          <h4>Need Help?</h4>
+          <ul>
+            <li>Contact Us</li>
+            <li>FAQs</li>
+            <li>Support</li>
+            <li>Search Tips</li>
+          </ul>
+        </div>
       </div>
-      <ul className="footer-links">
-        <li>Company</li>
-        <li>Products</li>
-        <li>Offices</li>
-        <li>About</li>
-        <li>Contact</li>
-      </ul>
-      <div className="footer-social-icon">
-        <div className="footer-icons-container">
-                <img src={instagram_icon} alt="" />
+
+      <div className="footer-bottom">
+        <div className="footer-brand">
+          <img src={footer_logo} alt="Logo" />
+          <p>MY DESIGN BAZAAR</p>
         </div>
-        <div className="footer-icons-container">
-                <img src={pintester_icon} alt="" />
+        <div className="footer-social">
+          <img src={instagram_icon} alt="Instagram" />
+          <img src={pintester_icon} alt="Pinterest" />
+          <img src={whatsapp_icon} alt="WhatsApp" />
         </div>
-        <div className="footer-icons-container">
-                <img src={whatsapp_icon} alt="" />
-        </div>
-        
       </div>
-      <div className="footer-copyright">
-        <hr />
-        <p>Copyright © 2025 - All Rights Reserved</p>
+
+      <hr />
+
+      <div className="footer-legal">
+        <p>© https://www.mydesignbazaar.com. A division of MDB Ventures Pvt. Ltd. All rights reserved.</p>
+        <div className="footer-policies">
+          <span>Terms of Use</span>
+          <span>Privacy Policy</span>
+          <span>FAQs</span>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;
