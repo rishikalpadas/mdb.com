@@ -1,0 +1,30 @@
+.popular-collections {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 0;
+  }
+  
+  .collections-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 32px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  
+  .collections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+    padding: 0 18px;
+  }
+  
+  @media (max-width: 768px) {
+    .collections-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      padding: 0 8px;
+    }
+  }
+  

@@ -10,7 +10,7 @@ const AddProduct = () => {
     const [productDetails,setProductDetails] = useState({
         name: '',
         image: '',
-        category: 'women',
+        category: 'people',
         new_price: '',
         old_price: '',
         created_by_id: localStorage.getItem('id'),
@@ -57,7 +57,7 @@ const AddProduct = () => {
                 data.success ? alert("Product Added Successfully") : alert("Product Adding Failed")
                 productDetails.name = '';
                 productDetails.image = '';
-                productDetails.category = 'women';
+                productDetails.category = 'people';
                 productDetails.new_price = '';
                 productDetails.old_price = '';
                 productDetails.created_by_id = localStorage.getItem('id');
@@ -87,9 +87,16 @@ const AddProduct = () => {
       <div className="addproduct-itemfield">
         <p>Product Category</p>
         <select value={productDetails.category} onChange={changeHandler} name="category" className='addproduct-selector'>
-            <option value="women">Women</option>
-            <option value="men">Men</option>
-            <option value="kid">Kid</option>
+            <option value="people">People</option>
+            <option value="lifestyle">Lifestyle</option>
+            <option value="business">Business</option>
+            <option value="traveltourism">Travel & Tourism</option>
+            <option value="festivalscelebrations">Festivals & Celebrations</option>
+            <option value="foodcuisine">Food & Cuisine</option>
+            <option value="naturelandscapes">Nature & Landscapes</option>
+            <option value="education">Education</option>
+            <option value="technology">Technology</option>
+            <option value="healthcare">Healthcare</option>
         </select>
       </div>
       <div className="addproduct-itemfield">

@@ -22,9 +22,16 @@ function App() {
         <Route path='/' element={<Shop />} />
         <Route path='/cart' element={<Cart />} />
         <Route path='/login' element={<LoginSignup />} />
-        <Route path='/mens' element={<ShopCategory banner={men_banner} category='men' />} />
-        <Route path='/womens' element={<ShopCategory banner={women_banner} category='women' />} />
-        <Route path='/kids' element={<ShopCategory banner={kid_banner} category='kid' />} />
+        <Route path='/people' element={<ShopCategory banner={men_banner} category='people' />} />
+        <Route path='/lifestyle' element={<ShopCategory banner={men_banner} category='lifestyle' />} />
+        <Route path='/business' element={<ShopCategory banner={men_banner} category='business' />} />
+        <Route path='/traveltourism' element={<ShopCategory banner={men_banner} category='traveltourism' />} />
+        <Route path='/festivalscelebrations' element={<ShopCategory banner={men_banner} category='festivalscelebrations' />} />
+        <Route path='/foodcuisine' element={<ShopCategory banner={women_banner} category='foodcuisine' />} />
+        <Route path='/naturelandscapes' element={<ShopCategory banner={kid_banner} category='naturelandscapes' />} />
+        <Route path='/education' element={<ShopCategory banner={kid_banner} category='education' />} />
+        <Route path='/technology' element={<ShopCategory banner={kid_banner} category='technology' />} />
+        <Route path='/healthcare' element={<ShopCategory banner={kid_banner} category='healthcare' />} />
         <Route path='/product' element={<Product />} >
           <Route path=':productId' element={<Product />} />
         </Route> 

@@ -59,6 +59,14 @@ const Hero = () => {
     setCurrentSlide(index);
   };
 
+  const goToPrevSlide = () => {
+    setCurrentSlide((prevSlide) => (prevSlide === 0 ? slides.length - 1 : prevSlide - 1));
+  };
+
+  const goToNextSlide = () => {
+    setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
+  };
+
   return (
     <div 
       className='hero' 
@@ -93,13 +101,31 @@ const Hero = () => {
         ))}
       </div>
 
+      {/* Navigation Arrows */}
+      <button className="slider-arrow slider-arrow-left" onClick={goToPrevSlide}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      
+      <button className="slider-arrow slider-arrow-right" onClick={goToNextSlide}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+
+      {/* Enhanced Indicators with Animation */}
       <div className="slider-indicators">
         {slides.map((_, index) => (
-          <span 
+          <div 
             key={index} 
-            className={`indicator ${index === currentSlide ? 'active' : ''}`}
+            className={`indicator-wrapper ${index === currentSlide ? 'active' : ''}`}
             onClick={() => goToSlide(index)}
-          />
+          >
+            <div className="indicator-dot">
+              <div className="indicator-fill"></div>
+            </div>
+          </div>
         ))}
       </div>
     </div>

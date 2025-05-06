@@ -61,7 +61,7 @@ const Footer = () => {
       <hr />
 
       <div className="footer-legal">
-        <p>© https://www.mydesignbazaar.com. A division of MDB Ventures Pvt. Ltd. All rights reserved.</p>
+        <p>© 2025 MY DESIGN BAZAAR. A division of PRINTING MADE EASY. All rights reserved.</p>
         <div className="footer-policies">
           <span>Terms of Use</span>
           <span>Privacy Policy</span>

@@ -120,7 +120,7 @@ const Navbar = () => {
         </div>
 
         {/* Search Row */}
-        <div className="navbar-search-row">
+        {/* <div className="navbar-search-row">
           <div className="search-container">
             <input 
               type="text" 
@@ -136,7 +136,7 @@ const Navbar = () => {
               <span className="search-by-text">Search by image</span>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
       
       {/* Compact header (shown when scrolled) */}
@@ -156,7 +156,7 @@ const Navbar = () => {
         </div>
         
         {/* Center - Search bar */}
-        <div className="compact-center">
+        {/* <div className="compact-center">
           <div className="compact-search-container">
             <input 
               type="text" 
@@ -168,7 +168,7 @@ const Navbar = () => {
               <span className="dropdown-arrow">▼</span>
             </div>
           </div>
-        </div>
+        </div> */}
         
         {/* Right side - Navigation links */}
         <div className="compact-right">
@@ -207,16 +207,16 @@ const Navbar = () => {
           <button className="close-sidebar" onClick={() => setSidebarOpen(false)}>×</button>
         </div>
         <ul className="sidebar-menu">
-          <li><Link to="/category/people">People</Link></li>
-          <li><Link to="/category/lifestyle">Lifestyle</Link></li>
-          <li><Link to="/category/business">Business</Link></li>
-          <li><Link to="/category/travel">Travel & Tourism</Link></li>
-          <li><Link to="/category/festivals">Festivals & Celebrations</Link></li>
-          <li><Link to="/category/food">Food & Cuisine</Link></li>
-          <li><Link to="/category/nature">Nature & Landscapes</Link></li>
-          <li><Link to="/category/education">Education</Link></li>
-          <li><Link to="/category/technology">Technology</Link></li>
-          <li><Link to="/category/healthcare">Healthcare</Link></li>
+          <li><Link to="/apparel">Apparel</Link></li>
+          <li><Link to="/print-and-pattern">Print & Pattern</Link></li>
+          <li><Link to="/theme-based">Theme-Based</Link></li>
+          <li><Link to="/customization-based">Customization-Based</Link></li>
+          <li><Link to="/business-and-industry">Business & Industry-Specific</Link></li>
+          {/* <li><Link to="/foodcuisine">Food & Cuisine</Link></li>
+          <li><Link to="/naturelandscapes">Nature & Landscapes</Link></li>
+          <li><Link to="/education">Education</Link></li>
+          <li><Link to="/technology">Technology</Link></li>
+          <li><Link to="/healthcare">Healthcare</Link></li> */}
         </ul>
       </div>
       
