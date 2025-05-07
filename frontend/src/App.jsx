@@ -22,16 +22,11 @@ function App() {
         <Route path='/' element={<Shop />} />
         <Route path='/cart' element={<Cart />} />
         <Route path='/login' element={<LoginSignup />} />
-        <Route path='/people' element={<ShopCategory banner={men_banner} category='people' />} />
-        <Route path='/lifestyle' element={<ShopCategory banner={men_banner} category='lifestyle' />} />
-        <Route path='/business' element={<ShopCategory banner={men_banner} category='business' />} />
-        <Route path='/traveltourism' element={<ShopCategory banner={men_banner} category='traveltourism' />} />
-        <Route path='/festivalscelebrations' element={<ShopCategory banner={men_banner} category='festivalscelebrations' />} />
-        <Route path='/foodcuisine' element={<ShopCategory banner={women_banner} category='foodcuisine' />} />
-        <Route path='/naturelandscapes' element={<ShopCategory banner={kid_banner} category='naturelandscapes' />} />
-        <Route path='/education' element={<ShopCategory banner={kid_banner} category='education' />} />
-        <Route path='/technology' element={<ShopCategory banner={kid_banner} category='technology' />} />
-        <Route path='/healthcare' element={<ShopCategory banner={kid_banner} category='healthcare' />} />
+        <Route path='/apparel' element={<ShopCategory banner={men_banner} category='apparel' />} />
+        <Route path='/printpattern' element={<ShopCategory banner={men_banner} category='printpattern' />} />
+        <Route path='/themebased' element={<ShopCategory banner={men_banner} category='themebased' />} />
+        <Route path='/customizationbased' element={<ShopCategory banner={men_banner} category='customizationbased' />} />
+        <Route path='/businessindustryspecific' element={<ShopCategory banner={men_banner} category='businessindustryspecific' />} />
         <Route path='/product' element={<Product />} >
           <Route path=':productId' element={<Product />} />
         </Route> 

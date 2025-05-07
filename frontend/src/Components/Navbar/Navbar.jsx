@@ -65,7 +65,7 @@ const Navbar = () => {
             <div className="nav-logo">
               <Link to="/">
                 <img src={logo} alt="ImagesBazaar" />
-                <p>imagesbazaar</p>
+                {/* <p>imagesbazaar</p> */}
               </Link>
             </div>
           </div>
@@ -150,7 +150,7 @@ const Navbar = () => {
           <div className="nav-logo compact">
             <Link to="/">
               <img src={logo} alt="ImagesBazaar" />
-              <p>imagesbazaar</p>
+              {/* <p>imagesbazaar</p> */}
             </Link>
           </div>
         </div>
@@ -208,10 +208,10 @@ const Navbar = () => {
         </div>
         <ul className="sidebar-menu">
           <li><Link to="/apparel">Apparel</Link></li>
-          <li><Link to="/print-and-pattern">Print & Pattern</Link></li>
-          <li><Link to="/theme-based">Theme-Based</Link></li>
-          <li><Link to="/customization-based">Customization-Based</Link></li>
-          <li><Link to="/business-and-industry">Business & Industry-Specific</Link></li>
+          <li><Link to="/printpattern">Print & Pattern</Link></li>
+          <li><Link to="/themebased">Theme-Based</Link></li>
+          <li><Link to="/customizationbased">Customization-Based</Link></li>
+          <li><Link to="/businessindustryspecific">Business & Industry-Specific</Link></li>
           {/* <li><Link to="/foodcuisine">Food & Cuisine</Link></li>
           <li><Link to="/naturelandscapes">Nature & Landscapes</Link></li>
           <li><Link to="/education">Education</Link></li>
