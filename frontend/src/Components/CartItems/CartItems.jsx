@@ -1,15 +1,18 @@
-import React, { useContext, useState } from 'react';
-import './CartItems.css';
-import { ShopContext } from '../../Context/ShopContext';
+import React, { useContext, useState } from "react";
+import "./CartItems.css";
+import { ShopContext } from "../../Context/ShopContext";
 import QRCode from "react-qr-code";
 import { base_url } from "../../Config/config";
 import Tesseract from "tesseract.js";
 
 const CartItems = () => {
-  const { all_product, cartItems, removeFromCart, getTotalCartAmount } = useContext(ShopContext);
-  
+  const { all_product, cartItems, removeFromCart, getTotalCartAmount } =
+    useContext(ShopContext);
+
   // Filter out products that are in the cart
-  const cartProducts = all_product.filter(product => cartItems[product.id] > 0);
+  const cartProducts = all_product.filter(
+    (product) => cartItems[product.id] > 0
+  );
 
   // State for checkout functionality
   const [showCheckout, setShowCheckout] = useState(false);
@@ -25,7 +28,9 @@ const CartItems = () => {
   const [transactionId, setTransactionId] = useState("");
   const [isVerified, setIsVerified] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,136 +42,285 @@ const CartItems = () => {
 
   const handleScreenshotUpload = (e) => {
     setPaymentScreenshot(e.target.files[0]);
+    // Reset verification status when a new screenshot is uploaded
+    setIsVerified(false);
+    setVerificationMessage("");
   };
 
   const handleVerifyPayment = async () => {
-    if (!paymentScreenshot || transactionId.trim() === "") {
-      alert("Please upload payment screenshot and enter transaction ID.");
-      return;
+  if (!paymentScreenshot || transactionId.trim() === "") {
+    setVerificationMessage(
+      "Please upload payment screenshot and enter transaction ID."
+    );
+    return;
+  }
+
+  // Validation: Transaction ID should be at least 4 characters
+  if (transactionId.trim().length < 4) {
+    setVerificationMessage("Transaction ID must be at least 4 characters.");
+    return;
+  }
+
+  setIsVerifying(true);
+  setVerificationMessage("Verifying payment, please wait...");
+
+  try {
+    // Perform OCR with improved options
+    const {
+      data: { text },
+    } = await Tesseract.recognize(paymentScreenshot, "eng", {
+      logger: (m) => console.log(m),
+      tessedit_char_whitelist:
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz,.:₹$()/ ",
+      tessedit_pageseg_mode: "3", // Fully automatic page segmentation, but no OSD
+    });
+
+    console.log("----- OCR Text Start -----");
+    console.log(text);
+    console.log("----- OCR Text End -----");
+
+    // Normalize OCR text and transaction ID for comparison
+    const normalizedText = text.toLowerCase().replace(/\s+/g, " ");
+    const userTransactionId = transactionId.trim().toLowerCase();
+    
+    // Split text into words/tokens for more precise matching
+    const tokens = normalizedText.split(/[\s,.:\-\/\\()]+/);
+    
+    // Extract potential transaction IDs (alphanumeric sequences of reasonable length)
+    const potentialIds = tokens.filter(token => 
+      token.length >= 4 && // Only consider tokens of reasonable length
+      /[a-z0-9]/i.test(token) && // Must contain at least one alphanumeric char
+      !/^[0-9]+$/.test(token) // Not just a number (to avoid just matching amounts)
+    );
+    
+    console.log("Potential IDs from OCR:", potentialIds);
+    
+    // Look for exact or substantial matches
+    let idMatch = false;
+    let matchScore = 0;
+    let bestMatchToken = "";
+    
+    // 1. Check for exact transaction ID match
+    if (normalizedText.includes(userTransactionId)) {
+      idMatch = true;
+      matchScore = 1.0;
+      bestMatchToken = userTransactionId;
+      console.log("Exact transaction ID match found");
+    } 
+    // 2. Check for partial matches with minimum threshold
+    else {
+      for (const token of potentialIds) {
+        // Find longest common substring
+        const lcs = longestCommonSubstring(userTransactionId, token);
+        const score = lcs.length / Math.max(userTransactionId.length, token.length);
+        
+        if (score > matchScore && lcs.length >= 4) { // At least 4 chars in common
+          matchScore = score;
+          bestMatchToken = token;
+        }
+      }
+      
+      // Consider a match if similarity is high enough
+      if (matchScore >= 0.7) { // At least 70% similar
+        idMatch = true;
+        console.log(`High similarity match found: ${bestMatchToken} (score: ${matchScore.toFixed(2)})`);
+      }
     }
-
-    try {
-      const { data: { text } } = await Tesseract.recognize(
-        paymentScreenshot,
-        'eng',
-        { logger: m => console.log(m) }
-      );
-
-      console.log("----- OCR Text Start -----");
-      console.log(text);
-      console.log("----- OCR Text End -----");
-
-      // For debugging purposes - show what was found in the image
-      const normalizedText = text.toLowerCase();
+    
+    // ==== IMPROVED AMOUNT DETECTION ====
+    const expectedAmount = getTotalCartAmount();
+    let amountMatch = false;
+    let bestAmountMatch = null;
+    
+    console.log("Looking for amount:", expectedAmount);
+    
+    // STEP 1: Try direct number matching first
+    // Generate multiple formats of the expected amount
+    const amountFormats = [
+      expectedAmount.toFixed(2),         // 123.45
+      Math.floor(expectedAmount).toString(), // 123
+      expectedAmount.toString(),         // 123.45 or 123
+      expectedAmount.toFixed(0),         // 123
+    ];
+    
+    // Also add formats with commas for thousands
+    if (expectedAmount >= 1000) {
+      const amountWithCommas = expectedAmount.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      amountFormats.push(amountWithCommas); // 1,234.56
       
-      // More flexible transaction ID extraction - look for patterns
-      let txnIdFromImage = null;
-      
-      // Try multiple regex patterns to find transaction ID
-      const txnPatterns = [
-        /(txn|transaction)\s*id[:\s]*([A-Za-z0-9]+)/i,
-        /(reference|ref)\s*(no|number)?[:\s]*([A-Za-z0-9]+)/i,
-        /(utr|utr\s*no)[:\s]*([A-Za-z0-9]+)/i,
-        /([A-Z0-9]{10,})/   // Look for any sequence of 10+ alphanumeric chars as fallback
+      const amountWithCommasNoDecimals = Math.floor(expectedAmount).toLocaleString('en-US');
+      amountFormats.push(amountWithCommasNoDecimals); // 1,234
+    }
+    
+    console.log("Amount formats to check:", amountFormats);
+    
+    // Check all formats
+    for (const format of amountFormats) {
+      if (normalizedText.includes(format)) {
+        amountMatch = true;
+        bestAmountMatch = format;
+        console.log(`Exact amount match found: ${format}`);
+        break;
+      }
+    }
+    
+    // STEP 2: If direct matching fails, extract all potential amounts using regex
+    if (!amountMatch) {
+      // Find all numbers in the OCR text that could be amounts
+      const amountRegexes = [
+        // Match currency patterns: $123.45, ₹123.45, 123.45$, etc.
+        /(?:₹|rs\.?|inr|usd|\$)\s*([0-9,]+(?:\.[0-9]{1,2})?)/gi,
+        /([0-9,]+(?:\.[0-9]{1,2})?)\s*(?:₹|rs\.?|inr|usd|\$)/gi,
+        
+        // Match standalone decimal numbers
+        /(?:amount|paid|total|payment|pay)[^\d]+((?:[0-9]{1,3}(?:,|\.)?)+(?:\.[0-9]{1,2})?)/gi,
+        
+        // Match any decimal number as fallback
+        /\b([0-9]{1,3}(?:,[0-9]{3})*\.[0-9]{1,2})\b/g,
+        /\b([0-9]{3,})\b/g  // Numbers with 3+ digits
       ];
       
-      for (const pattern of txnPatterns) {
-        const match = text.match(pattern);
-        if (match) {
-          // Different patterns have the ID in different capture groups
-          txnIdFromImage = pattern === txnPatterns[1] || pattern === txnPatterns[2] 
-            ? match[3]?.trim() 
-            : (pattern === txnPatterns[0] ? match[2]?.trim() : match[1]?.trim());
-          
-          if (txnIdFromImage) {
-            console.log(`Found transaction ID using pattern: ${pattern}`);
-            break;
+      const foundAmounts = [];
+      
+      // Extract all potential amounts from the text
+      for (const regex of amountRegexes) {
+        let match;
+        while ((match = regex.exec(normalizedText)) !== null) {
+          if (match[1]) {
+            const extractedStr = match[1].trim();
+            // Clean up the amount string (remove commas)
+            const cleanAmountStr = extractedStr.replace(/,/g, '');
+            const extractedAmount = parseFloat(cleanAmountStr);
+            
+            if (!isNaN(extractedAmount) && extractedAmount > 0) {
+              foundAmounts.push({
+                original: match[0],
+                extracted: extractedAmount,
+                context: normalizedText.substring(
+                  Math.max(0, match.index - 20), 
+                  Math.min(normalizedText.length, match.index + match[0].length + 20)
+                )
+              });
+            }
           }
         }
       }
-
-      console.log("Extracted Transaction ID:", txnIdFromImage);
-      console.log("User entered Transaction ID:", transactionId.trim());
-
-      // More flexible amount extraction
-      let amountFromImage = null;
       
-      // Look for amount patterns
-      const amountPatterns = [
-        // Look for currency symbol or word followed by number
-        /(?:₹|rs\.?|inr)\s*(\d+(?:[,.]\d+)?)/i,
-        // Look for "amount" followed by number
-        /amount[:\s]*(\d+(?:[,.]\d+)?)/i,
-        // Look for "paid" or "transferred" and nearby numbers
-        /(?:paid|transferred)[:\s]*(\d+(?:[,.]\d+)?)/i
-      ];
+      console.log("Found potential amounts:", foundAmounts);
       
-      for (const pattern of amountPatterns) {
-        const match = text.match(pattern);
-        if (match && match[1]) {
-          // Remove commas from the number and convert to float
-          amountFromImage = parseFloat(match[1].replace(/,/g, ''));
-          console.log(`Found amount using pattern: ${pattern}`);
+      // Check if any found amount matches the expected amount
+      for (const found of foundAmounts) {
+        const difference = Math.abs(found.extracted - expectedAmount);
+        const percentDiff = (difference / expectedAmount) * 100;
+        
+        console.log(`Comparing ${found.extracted} with ${expectedAmount}: diff=${difference}, percentDiff=${percentDiff.toFixed(2)}%`);
+        
+        // Match if within 2% tolerance
+        if (percentDiff <= 2) {
+          amountMatch = true;
+          bestAmountMatch = found.original;
+          console.log(`Amount match found: ${found.extracted} (${percentDiff.toFixed(2)}% diff)`);
+          console.log(`Context: ${found.context}`);
           break;
         }
       }
-      
-      // If still not found, search for numbers near keywords
-      if (!amountFromImage) {
-        const lines = text.split('\n').map(line => line.trim()).filter(line => line !== "");
-        for (let i = 0; i < lines.length; i++) {
-          if (lines[i].toLowerCase().includes('transferred') || 
-              lines[i].toLowerCase().includes('paid') || 
-              lines[i].toLowerCase().includes('amount')) {
-            // Check this line and 3 lines before/after for numbers
-            for (let j = Math.max(0, i-3); j <= Math.min(lines.length-1, i+3); j++) {
-              const numMatch = lines[j].match(/(\d+(?:[,.]\d+)?)/);
-              if (numMatch) {
-                amountFromImage = parseFloat(numMatch[1].replace(/,/g, ''));
-                console.log(`Found amount near keyword in line: ${lines[j]}`);
-                break;
-              }
-            }
-            if (amountFromImage) break;
-          }
+    }
+    
+    // Debug logs
+    console.log("User Transaction ID:", userTransactionId);
+    console.log("Transaction ID match:", idMatch, "with score:", matchScore);
+    console.log("Expected amount:", expectedAmount);
+    console.log("Amount match:", amountMatch, "best match:", bestAmountMatch);
+    
+    // Verification logic: 
+    // - Strong verification: Both ID and amount match
+    // - Medium verification: ID matches strongly (exact or high similarity)
+    // - Weak verification: Only amount matches, must have entered a complex transaction ID
+    if (idMatch && amountMatch) {
+      setIsVerified(true);
+      setVerificationMessage("✅ Payment verified successfully! (Strong verification)");
+    } else if (idMatch && matchScore > 0.8) {
+      setIsVerified(true);
+      setVerificationMessage("✅ Payment verified! Transaction ID confirmed.");
+    } else if (amountMatch && userTransactionId.length >= 6 && /[a-z0-9]{6,}/i.test(userTransactionId)) {
+      // Only verify if amount matches AND user entered a complex transaction ID (6+ chars)
+      setIsVerified(true);
+      setVerificationMessage("✅ Payment amount verified. Please ensure transaction ID is correct.");
+    } else if (idMatch) {
+      // If only ID matches but not amount, still verify but warn
+      setIsVerified(true);
+      setVerificationMessage("✅ Transaction ID verified! Amount could not be confirmed - please verify the amount is correct.");
+    } else {
+      setIsVerified(false);
+      setVerificationMessage(
+        "❌ Payment verification failed. Please check your transaction ID and ensure the screenshot clearly shows payment details."
+      );
+    }
+  } catch (error) {
+    console.error("Error reading payment screenshot:", error);
+    setVerificationMessage(
+      "❌ Failed to verify payment. Please try again with a clearer image."
+    );
+    setIsVerified(false);
+  } finally {
+    setIsVerifying(false);
+  }
+};
+
+// Helper function to find longest common substring
+const longestCommonSubstring = (str1, str2) => {
+  const m = str1.length;
+  const n = str2.length;
+  let result = "";
+  let maxLength = 0;
+  
+  // Create a table to store lengths of longest common suffixes
+  const dp = Array(m + 1).fill().map(() => Array(n + 1).fill(0));
+  
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1] + 1;
+        
+        if (dp[i][j] > maxLength) {
+          maxLength = dp[i][j];
+          result = str1.substr(i - maxLength, maxLength);
         }
       }
-
-      console.log("Extracted Amount:", amountFromImage);
-      console.log("Expected Amount:", getTotalCartAmount());
-
-      // More flexible verification
-      const isAmountMatching = amountFromImage 
-        ? Math.abs(amountFromImage - getTotalCartAmount()) < 0.01 // Allow tiny floating point differences
-        : false;
-        
-      // For transaction ID, be more lenient in comparison
-      const isIdMatching = txnIdFromImage 
-        ? txnIdFromImage.toLowerCase().includes(transactionId.trim().toLowerCase()) || 
-          transactionId.trim().toLowerCase().includes(txnIdFromImage.toLowerCase())
-        : false;
-        
-      console.log("Amount matching:", isAmountMatching);
-      console.log("ID matching:", isIdMatching);
-
-      // For testing purposes - accept if either matches or force accept
-      // setIsVerified(true); // Uncomment to force verification for testing
-      
-      if (isAmountMatching || isIdMatching) {
-        setIsVerified(true);
-        alert("✅ Payment verification successful!");
-      } else if (!txnIdFromImage && !amountFromImage) {
-        // If neither found, OCR probably failed
-        alert("❓ Could not extract payment details from image. For testing purposes, you can proceed. In production, please contact support.");
-        setIsVerified(true); // For testing only - remove in production
-      } else {
-        setIsVerified(false);
-        alert("❌ Payment details do not match. Please check the screenshot and transaction ID.");
-      }
-    } catch (error) {
-      console.error("Error reading payment screenshot:", error);
-      alert("Failed to verify payment. Please try again.");
     }
+  }
+  
+  return result;
+};
+
+  // Helper function to find longest common substring
+  const getLongestCommonSubstring = (str1, str2) => {
+    const m = str1.length;
+    const n = str2.length;
+    let result = 0;
+
+    // Create a table to store lengths of longest common suffixes
+    const dp = Array(m + 1)
+      .fill()
+      .map(() => Array(n + 1).fill(0));
+
+    for (let i = 0; i <= m; i++) {
+      for (let j = 0; j <= n; j++) {
+        if (i === 0 || j === 0) {
+          dp[i][j] = 0;
+        } else if (str1[i - 1] === str2[j - 1]) {
+          dp[i][j] = dp[i - 1][j - 1] + 1;
+          result = Math.max(result, dp[i][j]);
+        } else {
+          dp[i][j] = 0;
+        }
+      }
+    }
+
+    return result;
   };
 
   const handleProceedCheckout = () => {
@@ -180,6 +334,7 @@ const CartItems = () => {
     setTransactionId("");
     setEmailSent(false);
     setIsSubmitting(false);
+    setVerificationMessage("");
     setCheckoutData({
       phone: "",
       address: "",
@@ -212,14 +367,14 @@ const CartItems = () => {
 
     const emailPayload = {
       email: userEmail,
-      images: productImages
+      images: productImages,
     };
 
     try {
       const response = await fetch(`${base_url}/sendImagesEmail`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(emailPayload)
+        body: JSON.stringify(emailPayload),
       });
 
       // Check if response is OK before trying to parse JSON
@@ -228,7 +383,7 @@ const CartItems = () => {
         console.error("Error response:", errorText);
         throw new Error(`Server returned ${response.status}: ${errorText}`);
       }
-      
+
       // Try to parse JSON response
       try {
         const result = await response.json();
@@ -247,16 +402,23 @@ const CartItems = () => {
 
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
-    
+
     if (isSubmitting) {
       return; // Prevent multiple submissions
     }
-    
+
+    if (!isVerified) {
+      setVerificationMessage(
+        "Please verify your payment before submitting order"
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     const orderDetails = {
-      user_id: localStorage.getItem("id"),
-      name: localStorage.getItem("username"),
+      user_id: localStorage.getItem("id") || "",
+      name: localStorage.getItem("username") || "",
       items: cartItems,
       amount: getTotalCartAmount(),
       phone: checkoutData.phone,
@@ -264,65 +426,78 @@ const CartItems = () => {
       city: checkoutData.city,
       postalCode: checkoutData.postalCode,
       transactionId: transactionId,
-      email: localStorage.getItem("email"),
+      email: localStorage.getItem("email") || "",
     };
 
     try {
       // First, send the email with product images
       const emailSent = await sendProductImagesEmail();
       if (!emailSent) {
-        console.warn("Product images email could not be sent, but continuing with order submission");
+        console.warn(
+          "Product images email could not be sent, but continuing with order submission"
+        );
       }
 
       console.log("Submitting order to:", `${base_url}/addOrder`);
       console.log("Order details:", JSON.stringify(orderDetails));
-      
+
       const response = await fetch(`${base_url}/addOrder`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json", // Explicitly request JSON response
+        },
         body: JSON.stringify(orderDetails),
       });
 
-      // First check if response is OK before trying to parse JSON
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error response:", errorText);
-        throw new Error(`Server returned ${response.status}: ${errorText}`);
-      }
-      
-      // Try to parse JSON response
+      // Improved error handling for server responses
+      let responseText;
       let result;
+
       try {
-        result = await response.json();
-      } catch (parseError) {
-        console.error("Failed to parse JSON response:", parseError);
-        const responseText = await response.text();
-        console.log("Response text:", responseText);
-        throw new Error("Server returned invalid JSON. Please contact support.");
+        // First try to get the raw text
+        responseText = await response.text();
+
+        // Then try to parse it as JSON
+        try {
+          result = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error("Response is not valid JSON:", responseText);
+          throw new Error(
+            "Server returned invalid response format. Please contact support."
+          );
+        }
+      } catch (error) {
+        console.error("Error reading response:", error);
+        throw new Error("Failed to read server response. Please try again.");
+      }
+
+      if (!response.ok) {
+        throw new Error(result?.message || `Server error: ${response.status}`);
       }
 
       alert(result.message || "Order submitted successfully!");
-      
+
       // Redirect to home page
       window.location.replace("/");
-
     } catch (error) {
       console.error("Error submitting order:", error);
-      alert(error.message || "There was an error submitting your order. Please try again.");
+      alert(`Order submission failed: ${error.message}`);
     } finally {
       setIsSubmitting(false);
-      setShowCheckout(false);
     }
   };
 
   return (
     <div className="modern-cart">
       <h1 className="modern-cart-title">Your Shopping Cart</h1>
-      
+
       {cartProducts.length === 0 ? (
         <div className="modern-cart-empty">
           <p>Your cart is empty</p>
-          <button className="modern-cart-continue-shopping">Continue Shopping</button>
+          <button className="modern-cart-continue-shopping">
+            Continue Shopping
+          </button>
         </div>
       ) : (
         <>
@@ -335,28 +510,32 @@ const CartItems = () => {
                 <span>Total</span>
                 <span>Action</span>
               </div>
-              
+
               {cartProducts.map((product) => (
                 <div className="modern-cart-item" key={product.id}>
                   <div className="modern-cart-product">
-                    <img src={product.image} alt={product.name} className="modern-cart-product-image" />
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="modern-cart-product-image"
+                    />
                     <div className="modern-cart-product-details">
                       <h3>{product.name}</h3>
                       <p className="modern-cart-product-id">ID: {product.id}</p>
                     </div>
                   </div>
-                  
+
                   <div className="modern-cart-price">${product.new_price}</div>
-                  
+
                   <div className="modern-cart-quantity">
                     <span>{cartItems[product.id]}</span>
                   </div>
-                  
+
                   <div className="modern-cart-subtotal">
                     ${(cartItems[product.id] * product.new_price).toFixed(2)}
                   </div>
-                  
-                  <button 
+
+                  <button
                     className="modern-cart-remove"
                     onClick={() => removeFromCart(product.id)}
                     aria-label="Remove item"
@@ -366,7 +545,7 @@ const CartItems = () => {
                 </div>
               ))}
             </div>
-            
+
             <div className="modern-cart-summary-container">
               <div className="modern-cart-promo">
                 <h3>Promo Code</h3>
@@ -375,26 +554,26 @@ const CartItems = () => {
                   <button>Apply</button>
                 </div>
               </div>
-              
+
               <div className="modern-cart-summary">
                 <h2>Order Summary</h2>
-                
+
                 <div className="modern-cart-summary-row">
                   <span>Subtotal</span>
                   <span>${getTotalCartAmount().toFixed(2)}</span>
                 </div>
-                
+
                 <div className="modern-cart-summary-row">
                   <span>Shipping</span>
                   <span>Free</span>
                 </div>
-                
+
                 <div className="modern-cart-summary-row modern-cart-total">
                   <span>Total</span>
                   <span>${getTotalCartAmount().toFixed(2)}</span>
                 </div>
-                
-                <button 
+
+                <button
                   className="modern-cart-checkout"
                   onClick={handleProceedCheckout}
                 >
@@ -412,16 +591,22 @@ const CartItems = () => {
           <div className="modern-checkout-popup">
             <div className="modern-checkout-header">
               <h2>Complete Your Order</h2>
-              <button className="modern-close-button" onClick={handleClosePopup}>
+              <button
+                className="modern-close-button"
+                onClick={handleClosePopup}
+              >
                 ×
               </button>
             </div>
-            
+
             <div className="modern-checkout-content">
-              <form onSubmit={handleSubmitOrder} className="modern-checkout-form">
+              <form
+                onSubmit={handleSubmitOrder}
+                className="modern-checkout-form"
+              >
                 <div className="modern-form-section">
                   <h3>Shipping Information</h3>
-                  
+
                   <div className="modern-form-group">
                     <label htmlFor="phone">Phone Number</label>
                     <input
@@ -433,7 +618,7 @@ const CartItems = () => {
                       required
                     />
                   </div>
-                  
+
                   <div className="modern-form-group">
                     <label htmlFor="address">Address</label>
                     <input
@@ -445,7 +630,7 @@ const CartItems = () => {
                       required
                     />
                   </div>
-                  
+
                   <div className="modern-form-row">
                     <div className="modern-form-group">
                       <label htmlFor="city">City</label>
@@ -458,7 +643,7 @@ const CartItems = () => {
                         required
                       />
                     </div>
-                    
+
                     <div className="modern-form-group">
                       <label htmlFor="postalCode">Postal Code</label>
                       <input
@@ -475,7 +660,7 @@ const CartItems = () => {
 
                 <div className="modern-form-section">
                   <h3>Payment</h3>
-                  
+
                   {/* QR Code Section */}
                   <div className="modern-qr-section">
                     <h3>Scan to Pay: ${getTotalCartAmount().toFixed(2)}</h3>
@@ -486,12 +671,17 @@ const CartItems = () => {
                       />
                     </div>
                     <p>Scan to pay with any UPI app</p>
-                    <p>After payment, upload screenshot & transaction ID to verify</p>
+                    <p>
+                      After payment, upload screenshot & transaction ID to
+                      verify
+                    </p>
                   </div>
 
                   {/* Upload Screenshot */}
                   <div className="modern-form-group">
-                    <label htmlFor="screenshot">Upload Payment Screenshot</label>
+                    <label htmlFor="screenshot">
+                      Upload Payment Screenshot
+                    </label>
                     <input
                       type="file"
                       id="screenshot"
@@ -500,7 +690,10 @@ const CartItems = () => {
                       required
                       className="modern-file-input"
                     />
-                    <p className="modern-file-tip">Make sure the screenshot clearly shows the transaction ID and amount</p>
+                    <p className="modern-file-tip">
+                      Make sure the screenshot clearly shows the transaction ID
+                      and amount
+                    </p>
                   </div>
 
                   {/* Show Preview (Optional) */}
@@ -527,18 +720,33 @@ const CartItems = () => {
 
                   {/* Verify Button */}
                   <div className="modern-form-group">
-                    <button 
-                      type="button" 
-                      className="modern-verify-btn" 
+                    <button
+                      type="button"
+                      className="modern-verify-btn"
                       onClick={handleVerifyPayment}
+                      disabled={isVerifying}
                     >
-                      Verify Payment
+                      {isVerifying ? "Verifying..." : "Verify Payment"}
                     </button>
                   </div>
 
+                  {/* Verification message */}
+                  {verificationMessage && (
+                    <div
+                      className={`modern-verification-message ${
+                        isVerified ? "success" : "error"
+                      }`}
+                    >
+                      <p>{verificationMessage}</p>
+                    </div>
+                  )}
+
                   {emailSent && (
                     <div className="modern-email-confirmation">
-                      <p>✅ Product images email has been sent to your email address</p>
+                      <p>
+                        ✅ Product images email has been sent to your email
+                        address
+                      </p>
                     </div>
                   )}
                 </div>
@@ -549,7 +757,11 @@ const CartItems = () => {
                   className="modern-complete-order-btn"
                   disabled={!isVerified || isSubmitting}
                 >
-                  {isSubmitting ? "Processing..." : (isVerified ? "Complete Order" : "Please Verify Payment First")}
+                  {isSubmitting
+                    ? "Processing..."
+                    : isVerified
+                    ? "Complete Order"
+                    : "Please Verify Payment First"}
                 </button>
               </form>
             </div>
