@@ -8,13 +8,7 @@ const path = require('path');
 const cors = require('cors');
 
 app.use(express.json());
-app.use(cors(
-    {
-        origin: ["mdb-server-theta.vercel.app"],
-        methods: ["POST", "GET"],
-        credentials: true
-    }
-));
+app.use(cors());
 
 // Database connection with MongoDB
 
