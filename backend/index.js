@@ -8,7 +8,13 @@ const path = require('path');
 const cors = require('cors');
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(
+    {
+        origin: [""],
+        methods: ["POST", "GET"],
+        credentials: true
+    }
+));
 
 // Database connection with MongoDB
 
