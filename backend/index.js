@@ -306,3 +306,44 @@ app.listen(port,(error)=>{
         console.log("Error : "+error);
     }
 });
+
+// Schema for creating products
+
+const Order = mongoose.model("Orders",{
+    user_id: {type: String, required: true},
+    name: {type: String, required: true},
+    items: {type: Array, required: true},
+    amount : {type: Number, required: true},
+    date: {type: Date, default: Date.now}
+})
+
+
+// creating endpoint for adding order
+app.post("/addOrder", async (req, res) => {
+    try {
+        const order = new Order({
+            user_id: req.body.user_id, // use authenticated user id
+            name: req.body.name,
+            items: req.body.items,
+            amount: req.body.amount
+        });
+
+        await order.save();
+
+        // After placing the order, clear the user's cart
+        let emptyCart = {};
+        for (let i = 0; i < 300; i++) {
+            emptyCart[i] = 0;
+        }
+        await Users.findOneAndUpdate({_id: req.body.user_id}, {cartData: emptyCart});
+
+        res.json({
+            success: true,
+            order_id: order._id,
+            message: "Order Placed Successfully & Cart Emptied"
+        });
+    } catch (error) {
+        console.error("Error placing order:", error);
+        res.status(500).json({ success: false, message: "Order failed", error: error.message });
+    }
+});
