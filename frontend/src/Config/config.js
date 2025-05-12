@@ -1,3 +1,3 @@
-const base_url = 'http://localhost:4000';
+const base_url = 'https://mdb-com-1.onrender.com';
 
 export {base_url};
