@@ -14,6 +14,22 @@ app.use(cors());
 
 mongoose.connect('mongodb+srv://mdb_2025:mdb_23042025@cluster0.bybiulp.mongodb.net/e-commerce')
 
+const allowedOrigins = [
+  'https://mdb-com.vercel.app',
+  'https://mdb-com-vd5n.vercel.app'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true // if you need to allow credentials like cookies
+}));
+
 // API Creation
 
 app.get("/",(req,res)=>{
