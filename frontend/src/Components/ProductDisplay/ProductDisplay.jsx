@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react"; // Add useState import
+import React, { useContext, useEffect, useState } from "react"; // Add useState import
 import "./ProductDisplay.css";
 import star_icon from "../Assets/star_icon.png";
 import star_dull_icon from "../Assets/star_dull_icon.png";
@@ -11,6 +11,8 @@ const ProductDisplay = (props) => {
   const { subscription } = useContext(ShopContext);
 
   const [downloadRaw, setDownloadRaw] = useState(false);
+   const [watermarkedImages, setWatermarkedImages] = useState([]);
+  const [mainWatermarkedImage, setMainWatermarkedImage] = useState(null);
 
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
@@ -224,21 +226,86 @@ const ProductDisplay = (props) => {
     setShowSubscriptionPopup(false);
   };
 
+ const waterMarkedImage = async (image) => {
+    try {
+      const response = await fetch(image, { mode: "cors" });
+      const blob = await response.blob();
+      const imageBitmap = await createImageBitmap(blob);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = imageBitmap.width;
+      canvas.height = imageBitmap.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(imageBitmap, 0, 0);
+
+      const watermarkText = "©mdb.com";
+      ctx.font = "32px Arial";
+      ctx.fillStyle = "rgba(201, 199, 199, 0.5)"; // Semi-transparent watermark
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      const watermarkSpacingX = 300;
+      const watermarkSpacingY = 200;
+      const rotationAngle = (-30 * Math.PI) / 180;
+
+      for (let x = -canvas.width; x < canvas.width * 2; x += watermarkSpacingX) {
+        for (let y = -canvas.height; y < canvas.height * 2; y += watermarkSpacingY) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(rotationAngle);
+          ctx.fillText(watermarkText, 0, 0);
+          ctx.restore();
+        }
+      }
+
+      return new Promise((resolve, reject) => {
+        canvas.toBlob(
+          (canvasBlob) => {
+            if (canvasBlob) {
+              const url = URL.createObjectURL(canvasBlob);
+              resolve(url);
+            } else {
+              reject(new Error("Failed to create blob"));
+            }
+          },
+          "image/jpeg",
+          0.95
+        );
+      });
+    } catch (error) {
+      console.error("Watermark failed:", error);
+      return image; // Fallback to original image
+    }
+  };
+
+  // Generate watermarked images when component mounts or product changes
+  useEffect(() => {
+    const generateWatermarkedImages = async () => {
+      if (product?.image) {
+        const watermarked = await waterMarkedImage(product.image);
+        setMainWatermarkedImage(watermarked);
+        // Create array for thumbnail images
+        const thumbnailPromises = Array(4).fill().map(() => waterMarkedImage(product.image));
+        const thumbnails = await Promise.all(thumbnailPromises);
+        setWatermarkedImages(thumbnails);
+      }
+    };
+    generateWatermarkedImages();
+  }, [product?.image]);
+
   return (
     <div className="productdisplay">
       <div className="productdisplay-left">
-        {/* Existing left side content */}
         <div className="productdisplay-img-list">
-          <img src={product?.image} alt="" />
-          <img src={product?.image} alt="" />
-          <img src={product?.image} alt="" />
-          <img src={product?.image} alt="" />
+          {watermarkedImages.map((img, index) => (
+            <img key={index} src={img} alt={`${product?.name} thumbnail ${index + 1}`} />
+          ))}
         </div>
         <div className="productdisplay-img">
           <img
             className="productdisplay-main-img"
-            src={product?.image}
-            alt=""
+            src={mainWatermarkedImage || product?.image}
+            alt={product?.name}
           />
         </div>
       </div>
@@ -286,70 +353,35 @@ const ProductDisplay = (props) => {
           <button onClick={() => addToCart(product.id)}>ADD TO CART</button>
         )}
 
-     
-         {downloadRaw ?<a
-          href="#"
-          onClick={async (e) => {
-            e.preventDefault();
-            try {
-              const response = await fetch(product.image, { mode: "cors" });
-              const blob = await response.blob();
-              const imageBitmap = await createImageBitmap(blob);
-
-              const canvas = document.createElement("canvas");
-              canvas.width = imageBitmap.width;
-              canvas.height = imageBitmap.height;
-              const ctx = canvas.getContext("2d");
-              ctx.drawImage(imageBitmap, 0, 0);
-
-              const watermarkText = "©mdb.com";
-              ctx.font = "32px Arial";
-              ctx.fillStyle = "black";
-              ctx.textAlign = "center";
-              ctx.textBaseline = "middle";
-
-              const watermarkSpacingX = 300;
-              const watermarkSpacingY = 200;
-              const rotationAngle = (-30 * Math.PI) / 180; // -30 degrees in radians
-
-              for (let x = -canvas.width; x < canvas.width * 2; x += watermarkSpacingX) {
-                for (let y = -canvas.height; y < canvas.height * 2; y += watermarkSpacingY) {
-                  ctx.save();
-                  ctx.translate(x, y);
-                  ctx.rotate(rotationAngle);
-                  ctx.fillText(watermarkText, 0, 0);
-                  ctx.restore();
-                }
+        {downloadRaw ? (
+          <a
+            href="#"
+            onClick={async (e) => {
+              e.preventDefault();
+              try {
+                const response = await fetch(product?.raw_image, {
+                  mode: "cors",
+                });
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `product-image-${Date.now()}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+              } catch (error) {
+                console.error("Download failed:", error);
+                // Fallback: open in new tab
+                window.open(product.raw_image, "_blank");
               }
-
-              canvas.toBlob(
-                (canvasBlob) => {
-                  if (canvasBlob) {
-                    const url = URL.createObjectURL(canvasBlob);
-                    const link = document.createElement("a");
-                    link.href = url;
-                    link.download = `product-image-${Date.now()}.jpg`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                  }
-                },
-                "image/jpeg",
-                0.95
-              );
-            } catch (error) {
-              console.error("Download failed:", error);
-              window.open(product.raw_image, "_blank");
-            }
-          }}
-          className="btn btn-primary mt-3"
-        >
-          Download Raw Image
-        </a>:null}
-
-     
-
+            }}
+            className="btn btn-primary mt-3"
+          >
+            Download Raw Image
+          </a>
+        ) : null}
         {/* <p className='productdisplay-right-category'><span>Category :</span> Women, T-Shirt, Casual</p>
             <p className='productdisplay-right-category'><span>Tags :</span> Modern, Latest</p> */}
       </div>
