@@ -226,7 +226,7 @@ const ProductDisplay = (props) => {
     setShowSubscriptionPopup(false);
   };
 
- const waterMarkedImage = async (image) => {
+ const waterMarkedImage = async (image,id) => {
     try {
       const response = await fetch(image, { mode: "cors" });
       const blob = await response.blob();
@@ -238,7 +238,7 @@ const ProductDisplay = (props) => {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(imageBitmap, 0, 0);
 
-      const watermarkText = "©mdb.com";
+      const watermarkText = `©mdb_${id}.com`;
       ctx.font = "32px Arial";
       ctx.fillStyle = "rgba(201, 199, 199, 0.5)"; // Semi-transparent watermark
       ctx.textAlign = "center";
@@ -282,10 +282,10 @@ const ProductDisplay = (props) => {
   useEffect(() => {
     const generateWatermarkedImages = async () => {
       if (product?.image) {
-        const watermarked = await waterMarkedImage(product.image);
+        const watermarked = await waterMarkedImage(product.image,product.id);
         setMainWatermarkedImage(watermarked);
         // Create array for thumbnail images
-        const thumbnailPromises = Array(4).fill().map(() => waterMarkedImage(product.image));
+        const thumbnailPromises = Array(4).fill().map(() => waterMarkedImage(product.image,product.id));
         const thumbnails = await Promise.all(thumbnailPromises);
         setWatermarkedImages(thumbnails);
       }
