@@ -1,0 +1,235 @@
+.productdisplay{
+    display: flex;
+    margin: 0px 170px;
+}
+
+.productdisplay-left{
+    display: flex;
+    gap: 17px;
+}
+
+.productdisplay-img-list{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.productdisplay-img-list img{
+    height: 163px;
+}
+
+.productdisplay-main-img{
+    width: 586px;
+    height: 700px;
+}
+
+.productdisplay-right{
+    margin: 0px 70px;
+    display: flex;
+    flex-direction: column;
+}
+
+.productdisplay-right h1{
+    color: #3d3d3d;
+    font-size: 40px;
+    font-weight: 700;
+}
+
+.productdisplay-right-stars{
+    display: flex;
+    align-items: center;
+    margin-top: 13px;
+    gap: 5px;
+    color: #1c1c1c;
+    font-size: 16px;
+}
+
+.productdisplay-right-prices{
+    display: flex;
+    margin: 40px 0px;
+    gap: 30px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.productdisplay-right-price-old{
+    color: #818181;
+    text-decoration: line-through;
+}
+
+.productdisplay-right-price-new{
+    color: #ff4141;
+}
+
+.productdisplay-right-size h1{
+    margin-top: 55px;
+    color: #656565;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.productdisplay-right-sizes{
+    display: flex;
+    margin: 30px 0px;
+    gap: 20px;
+}
+
+.productdisplay-right-sizes div{
+    padding: 18px 24px;
+    background: #fbfbfb;
+    border: 1px solid #ebebeb;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.productdisplay-right button{
+    padding: 20px 40px;
+    width: 200px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    background: #FF4141;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.productdisplay-right-category{
+    margin-top: 10px;
+}
+
+.productdisplay-right-category span{
+    font-weight: 600;
+}
+
+/* Subscription Popup Styles */
+.modern-checkout-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modern-checkout-popup {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modern-checkout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.modern-close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #555;
+}
+
+.modern-checkout-content {
+  padding: 20px;
+}
+
+.modern-checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modern-form-section {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.modern-form-group {
+  margin-bottom: 15px;
+}
+
+.modern-form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.modern-form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modern-form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.modern-form-row .modern-form-group {
+  flex: 1;
+}
+
+.modern-complete-order-btn {
+  background-color: #ff4141;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.modern-complete-order-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.modern-subscription-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modern-subscription-item {
+  display: flex;
+  gap: 15px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.modern-subscription-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.modern-subscription-details h4 {
+  margin: 0 0 5px 0;
+}
+
+.modern-subscription-coins {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.modern-subscription-coins p {
+  margin: 5px 0;
+}

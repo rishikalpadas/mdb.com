@@ -1,0 +1,505 @@
+/* Navbar.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Add this to your Navbar.css file */
+body {
+  padding-top: 130px; /* Adjust this value based on your navbar height */
+}
+
+/* For when the navbar is in scrolled/compact mode */
+body.scrolled-nav {
+  padding-top: 60px; /* Height of the compact navbar */
+}
+
+
+
+/* Header container styles */
+.sticky-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Add this to create space for the navbar */
+main, 
+.main-content,
+#root > div:not(.sticky-header) {
+  margin-top: 130px; /* Adjust based on your navbar height */
+}
+/* Adjust margin when navbar is scrolled */
+.scrolled ~ main,
+.scrolled ~ .main-content,
+.scrolled ~ div:not(.sticky-header) {
+  margin-top: 60px;
+}
+
+
+
+/* Main navbar - default state */
+.navbar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  transition: opacity 0.3s ease;
+  /* margin-bottom: 200px; */
+}
+
+.navbar-top-row {
+  height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Left side - Browse Categories */
+.navbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.browse-categories-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 10px;
+  color: #333;
+}
+
+.hamburger-icon {
+  font-size: 22px;
+  color: #333;
+}
+
+.browse-text {
+  margin-left: 5px;
+}
+
+/* Center - Logo */
+.navbar-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-logo {
+  max-width: 180px;
+}
+
+.nav-logo img {
+  width: 100%;
+  height: auto;
+}
+
+.nav-logo.compact img {
+  max-width: 130px;
+}
+
+/* Right side - Pricing, Sign In, Cart */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.pricing-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.sign-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.signin-btn {
+  background-color: #181818;
+  color: white;
+  border: none;
+}
+
+.logout-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+}
+
+.designer-portal-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+.cart-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cart-icon-container img {
+  width: 24px;
+  height: 24px;
+}
+
+.nav-cart-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #f44336;
+  color: white;
+  font-size: 10px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Search row */
+.navbar-search-row {
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 40px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  height: 40px;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  overflow: hidden;
+  padding: 0 15px;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 10px;
+}
+
+.search-dropdown {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  margin-right: 10px;
+  border-right: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.dropdown-arrow {
+  font-size: 10px;
+  margin-left: 5px;
+  color: #666;
+}
+
+.search-by-image {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.search-icon {
+  font-size: 14px;
+}
+
+.search-by-text {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Compact navbar - scrolled state */
+.navbar-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 40px;
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.navbar-compact.visible {
+  opacity: 1;
+  visibility: visible;
+  background-color: white; /* Add this line */
+}
+
+.navbar.hidden {
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+}
+
+.scrolled {
+  transform: translateY(0);
+}
+
+/* Compact navbar sections */
+.compact-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.compact-center {
+  flex: 1;
+  max-width: 600px;
+  margin: 0 20px;
+}
+
+.compact-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.compact-search-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 40px;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  overflow: hidden;
+  padding: 0 15px;
+}
+
+/* Sidebar styles */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100vh;
+  background-color: white;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1100;
+  transition: left 0.3s ease;
+  overflow-y: auto;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.close-sidebar {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-menu li {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.sidebar-menu li a {
+  display: block;
+  padding: 15px 20px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.sidebar-menu li a:hover {
+  background-color: #f9f9f9;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+}
+
+/* Media queries for responsive design */
+@media screen and (max-width: 992px) {
+  .navbar-top-row, .navbar-compact {
+    padding: 0 20px;
+  }
+  
+  .browse-text {
+    display: none;
+  }
+  
+  .navbar-search-row {
+    padding: 0 20px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .navbar-right, .compact-right {
+    gap: 10px;
+  }
+  
+  .pricing-link {
+    font-size: 12px;
+  }
+  
+  .sign-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .search-by-text {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .navbar-top-row, .navbar-compact {
+    padding: 0 10px;
+  }
+  
+  .search-dropdown {
+    display: none;
+  }
+}
+
+
+/* Search Suggestions Styling - FIXED POSITION VERSION */
+.search-container,
+.compact-search-container {
+  position: relative;
+}
+
+.search-suggestions-container {
+  position: fixed; /* Changed from absolute to fixed */
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 2000;
+  max-height: 300px;
+  overflow-y: auto;
+  width: 100%;
+  max-width: 1200px; /* Match the max-width of search container */
+  display: block !important;
+  visibility: visible !important;
+}
+
+.search-suggestions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-suggestion-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.search-suggestion-item:hover {
+  background-color: #f5f5f5;
+}
+
+.search-suggestion-item.disabled {
+  color: #999;
+  cursor: default;
+}
+
+.search-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.search-suggestion-item:hover::after {
+  content: "→";
+  margin-left: auto;
+  color: #666;
+}
+
+.search-suggestion-item.disabled:hover::after {
+  content: none;
+}
+
+
+/* Additional styling for enhanced suggestions */
+.suggestion-category {
+  margin-left: 10px;
+  font-size: 12px;
+  color: #666;
+  background-color: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.search-footer {
+  padding: 8px 16px;
+  background-color: #f9f9f9;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+
+

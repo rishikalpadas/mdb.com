@@ -1,0 +1,85 @@
+.new-collections {
+  padding: 20px;
+  max-width: 1300px;
+  margin: auto;
+}
+
+.new-collections h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.2rem;
+  padding: 50px 0;
+}
+
+.pinterest-grid {
+  column-count: 4;
+  column-gap: 16px;
+}
+
+.grid-item {
+  break-inside: avoid;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.grid-item img {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.item-caption {
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  text-align: center;
+  font-size: 14px;
+  padding: 6px 0;
+  margin-top: -30px; /* Pull up on image */
+}
+
+
+/* Custom sizes */
+.small-item {
+  grid-row: span 1;
+  grid-column: span 1;
+}
+
+.wide-item {
+  grid-column: span 2;
+  grid-row: span 1;
+}
+
+.tall-item {
+  grid-column: span 1;
+  grid-row: span 2;
+}
+
+.big-item {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+@media (max-width: 1200px) {
+  .pinterest-grid {
+    column-count: 3;
+  }
+}
+@media (max-width: 768px) {
+  .pinterest-grid {
+    column-count: 2;
+  }
+}
+@media (max-width: 480px) {
+  .pinterest-grid {
+    column-count: 1;
+  }
+}
+
