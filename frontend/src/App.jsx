@@ -12,10 +12,12 @@ import women_banner from './Components/Assets/banner_women.png'
 import kid_banner from './Components/Assets/banner_kids.png'
 import PricingPage from './Components/Pricing/PricingPage'
 import useDisableRightClick from './hooks/useDisableRightClick';
+import useDevToolsBlocker from './hooks/useDevToolsBlocker'
 
 function App() {
   const [count, setCount] = useState(0)
   useDisableRightClick();
+  useDevToolsBlocker();
 
   return (
     <div>

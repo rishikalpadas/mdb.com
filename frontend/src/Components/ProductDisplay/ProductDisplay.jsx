@@ -1,9 +1,9 @@
-import React, { useContext, useState } from 'react'  // Add useState import
-import './ProductDisplay.css'
-import star_icon from '../Assets/star_icon.png'
-import star_dull_icon from '../Assets/star_dull_icon.png'
-import { ShopContext } from '../../Context/ShopContext'
-import { base_url } from '../../Config/config'
+import React, { useContext, useState } from "react"; // Add useState import
+import "./ProductDisplay.css";
+import star_icon from "../Assets/star_icon.png";
+import star_dull_icon from "../Assets/star_dull_icon.png";
+import { ShopContext } from "../../Context/ShopContext";
+import { base_url } from "../../Config/config";
 const ProductDisplay = (props) => {
   const { product } = props;
   const { addToCart } = useContext(ShopContext);
@@ -35,7 +35,7 @@ const ProductDisplay = (props) => {
       image: product.image,
       price: product.new_price,
       quantity: 1,
-      subtotal: (1 * product.new_price).toFixed(2)
+      subtotal: (1 * product.new_price).toFixed(2),
     };
 
     const orderDetails = {
@@ -47,13 +47,14 @@ const ProductDisplay = (props) => {
       address: shippingInfo.address,
       city: shippingInfo.city,
       postalCode: shippingInfo.postalCode,
-      coins: subscription === "500" || subscription === 500
-        ? 50
-        : subscription === "1399" || subscription === 1399
+      coins:
+        subscription === "500" || subscription === 500
+          ? 50
+          : subscription === "1399" || subscription === 1399
           ? 47
           : subscription === "2499" || subscription === 2499
-            ? 42
-            : 0,
+          ? 42
+          : 0,
       email: localStorage.getItem("email") || "",
     };
 
@@ -109,13 +110,14 @@ const ProductDisplay = (props) => {
         const userId = localStorage.getItem("id");
         // Calculate remaining coins after deduction
         const userCurrentCoins = parseInt(localStorage.getItem("coins") || "0");
-        const coinsToDeduct = subscription === "500" || subscription === 500
-          ? 50
-          : subscription === "1399" || subscription === 1399
+        const coinsToDeduct =
+          subscription === "500" || subscription === 500
+            ? 50
+            : subscription === "1399" || subscription === 1399
             ? 47
             : subscription === "2499" || subscription === 2499
-              ? 42
-              : 0;
+            ? 42
+            : 0;
         const remainingCoins = Math.max(0, coins - coinsToDeduct);
 
         const coinResponse = await fetch(`${base_url}/removeCoins`, {
@@ -125,7 +127,7 @@ const ProductDisplay = (props) => {
           },
           body: JSON.stringify({
             id: userId,
-            coins: remainingCoins
+            coins: remainingCoins,
           }),
         });
 
@@ -153,8 +155,6 @@ const ProductDisplay = (props) => {
     }
   };
 
-
-
   // Add state for subscription popup
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -169,9 +169,9 @@ const ProductDisplay = (props) => {
   // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setShippingInfo(prevData => ({
+    setShippingInfo((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -206,7 +206,6 @@ const ProductDisplay = (props) => {
         setShowSubscriptionPopup(false);
         // Here you would also update the coins balance
       }, 1500);
-
     } catch (error) {
       console.error("Error processing subscription purchase:", error);
       alert("Failed to process your purchase. Please try again.");
@@ -226,22 +225,26 @@ const ProductDisplay = (props) => {
   };
 
   return (
-    <div className='productdisplay'>
+    <div className="productdisplay">
       <div className="productdisplay-left">
         {/* Existing left side content */}
         <div className="productdisplay-img-list">
-          <img src={product.image} alt="" />
-          <img src={product.image} alt="" />
-          <img src={product.image} alt="" />
-          <img src={product.image} alt="" />
+          <img src={product?.image} alt="" />
+          <img src={product?.image} alt="" />
+          <img src={product?.image} alt="" />
+          <img src={product?.image} alt="" />
         </div>
         <div className="productdisplay-img">
-          <img className='productdisplay-main-img' src={product.image} alt="" />
+          <img
+            className="productdisplay-main-img"
+            src={product?.image}
+            alt=""
+          />
         </div>
       </div>
       <div className="productdisplay-right">
         {/* Existing right side content */}
-        <h1>{product.name}</h1>
+        <h1>{product?.name}</h1>
         <div className="productdisplay-right-stars">
           <img src={star_icon} alt="" />
           <img src={star_icon} alt="" />
@@ -251,11 +254,18 @@ const ProductDisplay = (props) => {
           <p>(122)</p>
         </div>
         <div className="productdisplay-right-prices">
-          <div className="productdisplay-right-price-old">${product.old_price}</div>
-          <div className="productdisplay-right-price-new">${product.new_price}</div>
+          <div className="productdisplay-right-price-old">
+            ${product?.old_price}
+          </div>
+          <div className="productdisplay-right-price-new">
+            ${product?.new_price}
+          </div>
         </div>
         <div className="productdisplay-right-description">
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Accusantium quo numquam cupiditate facere magni, nihil aut recusandae a tempora quas inventore doloribus soluta suscipit dicta? Alias dolores praesentium nostrum at!
+          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Accusantium
+          quo numquam cupiditate facere magni, nihil aut recusandae a tempora
+          quas inventore doloribus soluta suscipit dicta? Alias dolores
+          praesentium nostrum at!
         </div>
         <div className="productdisplay-right-size">
           <h1>Select Size</h1>
@@ -268,42 +278,78 @@ const ProductDisplay = (props) => {
           </div>
         </div>
         {/* Modified button to open popup */}
-        {coins > 0 ?
-          <button onClick={handleOpenSubscriptionPopup}>Buy with subscription coins</button>
-          :
+        {coins > 0 ? (
+          <button onClick={handleOpenSubscriptionPopup}>
+            Buy with subscription coins
+          </button>
+        ) : (
           <button onClick={() => addToCart(product.id)}>ADD TO CART</button>
-        }
+        )}
 
-{downloadRaw ? 
-  <a 
-    href="#"
-    onClick={async (e) => {
-      e.preventDefault();
-      try {
-        const response = await fetch(product.raw_image, {
-          mode: 'cors'
-        });
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `product-image-${Date.now()}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error('Download failed:', error);
-        // Fallback: open in new tab
-        window.open(product.raw_image, '_blank');
-      }
-    }}
-    className='btn btn-primary mt-3'
-  >
-    Download Raw Image
-  </a> 
-  : null
-}
+     
+         {downloadRaw ?<a
+          href="#"
+          onClick={async (e) => {
+            e.preventDefault();
+            try {
+              const response = await fetch(product.image, { mode: "cors" });
+              const blob = await response.blob();
+              const imageBitmap = await createImageBitmap(blob);
+
+              const canvas = document.createElement("canvas");
+              canvas.width = imageBitmap.width;
+              canvas.height = imageBitmap.height;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(imageBitmap, 0, 0);
+
+              const watermarkText = "©mdb.com";
+              ctx.font = "32px Arial";
+              ctx.fillStyle = "black";
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+
+              const watermarkSpacingX = 300;
+              const watermarkSpacingY = 200;
+              const rotationAngle = (-30 * Math.PI) / 180; // -30 degrees in radians
+
+              for (let x = -canvas.width; x < canvas.width * 2; x += watermarkSpacingX) {
+                for (let y = -canvas.height; y < canvas.height * 2; y += watermarkSpacingY) {
+                  ctx.save();
+                  ctx.translate(x, y);
+                  ctx.rotate(rotationAngle);
+                  ctx.fillText(watermarkText, 0, 0);
+                  ctx.restore();
+                }
+              }
+
+              canvas.toBlob(
+                (canvasBlob) => {
+                  if (canvasBlob) {
+                    const url = URL.createObjectURL(canvasBlob);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = `product-image-${Date.now()}.jpg`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                  }
+                },
+                "image/jpeg",
+                0.95
+              );
+            } catch (error) {
+              console.error("Download failed:", error);
+              window.open(product.raw_image, "_blank");
+            }
+          }}
+          className="btn btn-primary mt-3"
+        >
+          Download Raw Image
+        </a>:null}
+
+     
+
         {/* <p className='productdisplay-right-category'><span>Category :</span> Women, T-Shirt, Casual</p>
             <p className='productdisplay-right-category'><span>Tags :</span> Modern, Latest</p> */}
       </div>
@@ -314,11 +360,19 @@ const ProductDisplay = (props) => {
           <div className="modern-checkout-popup">
             <div className="modern-checkout-header">
               <h2>Complete Your Subscription Purchase</h2>
-              <button className="modern-close-button" onClick={handleClosePopup}>×</button>
+              <button
+                className="modern-close-button"
+                onClick={handleClosePopup}
+              >
+                ×
+              </button>
             </div>
 
             <div className="modern-checkout-content">
-              <form onSubmit={handleSubscriptionPurchase} className="modern-checkout-form">
+              <form
+                onSubmit={handleSubscriptionPurchase}
+                className="modern-checkout-form"
+              >
                 <div className="modern-form-section">
                   <h3>Shipping Information</h3>
 
@@ -415,7 +469,7 @@ const ProductDisplay = (props) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ProductDisplay
+export default ProductDisplay;
